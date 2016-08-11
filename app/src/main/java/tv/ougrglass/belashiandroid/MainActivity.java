@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -30,7 +28,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     public TextView mWiFiTextView;
-    private boolean TEMP_IN_SIMULATOR = false;
     Thread mUDPListenerThread;
     boolean shouldSocketListen;
     DatagramSocket mSocket;
@@ -38,94 +35,88 @@ public class MainActivity extends AppCompatActivity {
     private OGObjectAdapter adapter ;
     private List<OGObject> mOGList ;
 
-
     public TextView getTextView() {
         return mWiFiTextView;
     }
 
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    protected void onCreate(Bundle savedInstanceState) { //Create the view
+        super.onCreate(savedInstanceState); //call onCreate android method
+        setContentView(R.layout.activity_main); //Set the content view to the main activity
 
-        mWiFiTextView = (TextView) findViewById(R.id.wifiView);
-         setWifiText();
+        mWiFiTextView = (TextView) findViewById(R.id.wifiView); //set the wifi text to the text view
+        setWifiText(); //Actually set the content of the text view
 
-        createUDPThread();
-        mUDPListenerThread.start();
+        startListen(); //Start listening to the UDP client
         try {
-            mSocket = new DatagramSocket(9091);
+            mSocket = new DatagramSocket(9091); //Set the socket to our listen port
         } catch (SocketException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //Print an error
         }
 
-        initializeRecyclerView();
-
-
-        addOGToTable();
+        initializeRecyclerView(); //Start our main recycler view
 
     }
 
     private void initializeRecyclerView() {
 
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.ogBoxView);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.ogBoxView); //Set the recycler view variable
 
         //adapter = new MyCustomAdapter(this, Data.getData());
         //mRecyclerView.setAdapter(adapter);
 
-        mOGList = simulateOGBoxes(7);
+        mOGList = simulateOGBoxes(3); //Initizalize the OGList (simulation currently)
 
-        adapter = new OGObjectAdapter(this, mOGList);
+        adapter = new OGObjectAdapter(this, mOGList); //Create the adapter object with a list
 
-        mRecyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter); // Set the recycler view adapter to the adapter object
 
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2)); //Set the layout manager to GridLayout
 
     }
 
     public List<OGObject> simulateOGBoxes(int number){
 
-        List<OGObject> returnList = new ArrayList<>();
+        List<OGObject> returnList = new ArrayList<>(); //make a list
 
-        for(int i = 0; i < number; i++){
+        for(int i = 0; i < number; i++){ //loop
 
             OGObject obj = new OGObject("OGName" + Integer.toString(i),
                     "OGLocation" + Integer.toString(i), i+ ":"+i+":"+i+":"+i, "192.168.1." + i);
+            //Make an OGObject for every iteration in the loop
 
-            returnList.add(obj);
+            returnList.add(obj); //Add it to the list
 
         }
 
-        return returnList;
+        return returnList; //Return the list
 
     }
 
     public void setWifiText() {
 
+        WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE); //Set the wifi manager
 
-        WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = wifiManager.getConnectionInfo(); // Get the info
 
-        WifiInfo info = wifiManager.getConnectionInfo();
+        String ssid = info.getSSID().substring(1, info.getSSID().length()-1); //get the ssid
 
-        String ssid = info.getSSID().substring(1, info.getSSID().length()-1);
+        String result; //Get read to build the result
 
-        String result;
-
-        if(ssid.equalsIgnoreCase("unknown ssid")){
-            result = "Wi-Fi Network Not Found";
+        if(ssid.equalsIgnoreCase("unknown ssid")){ //If we don't know the ssid
+            result = "Wi-Fi Network Not Found"; //Set it to something more pretty
         } else {
-            result = String.format("Wi-Fi Network: %s", ssid);
+            result = String.format("Wi-Fi Network: %s", ssid); //Or set the text
         }
 
-        mWiFiTextView.setText(result);
+        mWiFiTextView.setText(result); //Set the wifi text
 
     }
 
     @Override
     public void onResume() {
-        super.onResume();
-        startListen();
+        super.onResume(); //Android resume
+        startListen(); //Resume the listening again
     }
 
     @Override
@@ -134,8 +125,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startListen() {
-        createUDPThread();
-        mUDPListenerThread.start();
+        createUDPThread(); //Create the udp thread
+        mUDPListenerThread.start(); //And start it
     }
 
     public void endListen() {
@@ -143,14 +134,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateAdapter(){
-        MainActivity.this.runOnUiThread(new Runnable() {
+        MainActivity.this.runOnUiThread(new Runnable() { //Run a ui thread method
 
             @Override
             public void run() {
-                adapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged(); //Tell the adapter stuff has changed
             }
 
         });
+    }
+
+    private void addObjectToOGList(OGObject ogObject){
+
+        boolean inList = false;
+        for(OGObject obj : mOGList){
+            if(obj.getName().equalsIgnoreCase(ogObject.getName())){
+                inList = true;
+                obj.setUpdateTime(Calendar.getInstance().getTime().getTime());
+                break;
+            }
+        }
+
+        if(!inList){
+            mOGList.add(ogObject);
+            updateAdapter();
+        }
+
+    }
+
+    private void removeOldOGsFromList(){
+
+        long now = Calendar.getInstance().getTime().getTime();
+
+        for(OGObject obj : mOGList){
+
+            if(now - obj.getUpdateTime() >= (30 * 1000)){
+
+                mOGList.remove(obj);
+                updateAdapter();
+
+            }
+        }
     }
 
     private void processReceivedPackets(DatagramPacket receivedPacket) {
@@ -170,34 +194,8 @@ public class MainActivity extends AppCompatActivity {
                     jsonObject.getString("mac"),
                     receivedPacket.getAddress().toString());
 
-            boolean inList = false;
-            for(OGObject obj : mOGList){
-                if(obj.getName().equalsIgnoreCase(ogObject.getName())){
-                    inList = true;
-                    obj.setUpdateTime(Calendar.getInstance().getTime().getTime());
-                    break;
-                }
-            }
 
-            if(!inList){
-                mOGList.add(ogObject);
-                updateAdapter();
-            }
-
-//            long now = Calendar.getInstance().getTime().getTime();
-//
-//            for(OGObject obj : mOGList){
-//
-//                if(now - obj.getUpdateTime() >= (30 * 1000)){
-//
-//                    //remove box
-//
-//                    mOGList.remove(obj);
-//                    updateAdapter();
-//
-//                }
-//
-//            }
+            addObjectToOGList(ogObject);
 
             Log.d("Servers Array Print", mOGBoxes.keySet().toString());
 
@@ -213,7 +211,6 @@ public class MainActivity extends AppCompatActivity {
         shouldSocketListen = true;
 
         mUDPListenerThread = new Thread(new Runnable() {
-
 
             @Override
             public void run() {
@@ -250,10 +247,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-
-    }
-
-    public void addOGToTable() {
 
     }
 
