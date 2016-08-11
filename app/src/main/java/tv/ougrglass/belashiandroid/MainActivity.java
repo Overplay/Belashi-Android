@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,11 +30,12 @@ public class MainActivity extends AppCompatActivity {
 
     public TextView mWiFiTextView;
     Thread mUDPListenerThread;
-    boolean shouldSocketListen;
+    Thread mUDPBroadcastThread;
     DatagramSocket mSocket;
     HashMap<String, OGObject> mOGBoxes = new HashMap<>();
     private OGObjectAdapter adapter ;
-    private List<OGObject> mOGList ;
+    private List<OGObject> mOGList = new ArrayList<OGObject>();
+    private boolean mListening = false;
 
     public TextView getTextView() {
         return mWiFiTextView;
@@ -48,11 +50,6 @@ public class MainActivity extends AppCompatActivity {
         setWifiText(); //Actually set the content of the text view
 
         startListen(); //Start listening to the UDP client
-        try {
-            mSocket = new DatagramSocket(9091); //Set the socket to our listen port
-        } catch (SocketException e) {
-            e.printStackTrace(); //Print an error
-        }
 
         initializeRecyclerView(); //Start our main recycler view
 
@@ -65,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         //adapter = new MyCustomAdapter(this, Data.getData());
         //mRecyclerView.setAdapter(adapter);
 
-        mOGList = simulateOGBoxes(3); //Initizalize the OGList (simulation currently)
+        //mOGList = simulateOGBoxes(3); //Initizalize the OGList (simulation currently)
 
         adapter = new OGObjectAdapter(this, mOGList); //Create the adapter object with a list
 
@@ -121,16 +118,34 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onPause() {
+        stopListen();
         super.onPause();
     }
 
     public void startListen() {
+        if(mListening)
+            return;
+
+        try {
+            mSocket = new DatagramSocket(9091); //Set the socket to our listen port
+            mSocket.setBroadcast(true);
+        } catch (SocketException e) {
+            e.printStackTrace(); //Print an error
+        }
+
         createUDPThread(); //Create the udp thread
+        mListening = true;
         mUDPListenerThread.start(); //And start it
+        mUDPBroadcastThread.start();
     }
 
-    public void endListen() {
-        shouldSocketListen = false;
+    public void stopListen() {
+        if(!mListening)
+            return;
+        mListening = false;
+
+        //Kill the threads?
+
     }
 
     public void updateAdapter(){
@@ -142,6 +157,110 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+
+
+
+
+    public void createUDPThread() {
+
+        mUDPBroadcastThread = new Thread(new Runnable(){
+
+            @Override
+            public void run(){
+
+                try {
+                    while (mListening){
+                        byte[] messageBytes =
+                                ("{'name': 'Nobodys Business'," +
+                                        " 'location': 'in ya couch'," +
+                                        " 'mac': 'and cheese'}").getBytes();
+                        DatagramPacket packet = new DatagramPacket(messageBytes,
+                                messageBytes.length,
+                                InetAddress.getByName("255.255.255.255"),
+                                9091);
+                        try{
+                            mSocket.send(packet);
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        Thread.sleep(2000);
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            }
+
+        });
+
+
+
+        mUDPListenerThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                try {
+
+                    while (mListening) {
+
+                        byte[] receiveBuffer = new byte[256];
+
+                        DatagramPacket receivedPacket =
+                                new DatagramPacket(receiveBuffer, receiveBuffer.length);
+                        mSocket.receive(receivedPacket);
+                        processReceivedPackets(receivedPacket);
+
+                    }
+
+                } catch (NullPointerException e) {
+                    Log.e("NullPointer", e.toString());
+                    mSocket.disconnect();
+                } catch (UnsupportedEncodingException e) {
+                    Log.e("Encoding Exception", e.toString());
+                    mSocket.disconnect();
+                } catch (IOException e) {
+                    Log.e("IO Exception", e.toString());
+                    mSocket.disconnect();
+                }
+
+
+
+            }
+
+        });
+
+    }
+
+    private void processReceivedPackets(DatagramPacket receivedPacket) {
+
+        try {
+
+            byte[] data = receivedPacket.getData();
+            byte[] choppedData = new byte[receivedPacket.getLength()];
+            System.arraycopy(data, 0, choppedData, 0, receivedPacket.getLength());
+
+            String jsonString = new String(choppedData, "UTF-8");
+            JSONObject jsonObject = new JSONObject(jsonString);
+
+            OGObject ogObject = new OGObject(
+                    jsonObject.getString("name"),
+                    jsonObject.getString("location"),
+                    jsonObject.getString("mac"),
+                    receivedPacket.getAddress().toString());
+
+
+            addObjectToOGList(ogObject);
+
+            Log.d("Servers Array Print", mOGList.toString());
+
+        } catch (JSONException | UnsupportedEncodingException e) {
+            //JSON Exception occured
+            e.printStackTrace();
+        }
+
     }
 
     private void addObjectToOGList(OGObject ogObject){
@@ -177,77 +296,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void processReceivedPackets(DatagramPacket receivedPacket) {
 
-        try {
-
-            byte[] data = receivedPacket.getData();
-            byte[] choppedData = new byte[receivedPacket.getLength()];
-            System.arraycopy(data, 0, choppedData, 0, receivedPacket.getLength());
-
-            String jsonString = new String(choppedData, "UTF-8");
-            JSONObject jsonObject = new JSONObject(jsonString);
-
-            OGObject ogObject = new OGObject(
-                    jsonObject.getString("name"),
-                    jsonObject.getString("location"),
-                    jsonObject.getString("mac"),
-                    receivedPacket.getAddress().toString());
-
-
-            addObjectToOGList(ogObject);
-
-            Log.d("Servers Array Print", mOGBoxes.keySet().toString());
-
-        } catch (JSONException | UnsupportedEncodingException e) {
-            //JSON Exception occured
-            e.printStackTrace();
-        }
-
-    }
-
-    public void createUDPThread() {
-
-        shouldSocketListen = true;
-
-        mUDPListenerThread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-
-                try {
-                    mSocket = new DatagramSocket(9091);
-                } catch (SocketException e) {
-                    e.printStackTrace();
-                }
-
-                try {
-
-                    while (shouldSocketListen) {
-
-                        byte[] receiveBuffer = new byte[256];
-
-                        DatagramPacket receivedPacket =
-                                new DatagramPacket(receiveBuffer, receiveBuffer.length);
-                        mSocket.receive(receivedPacket);
-                        processReceivedPackets(receivedPacket);
-
-                    }
-
-                } catch (NullPointerException e) {
-                    Log.e("NullPointer", e.toString());
-                } catch (UnsupportedEncodingException e) {
-                    Log.e("Encoding Exception", e.toString());
-                } catch (IOException e) {
-                    Log.e("IO Exception", e.toString());
-                }
-
-                mSocket.disconnect();
-
-            }
-
-        });
-
-    }
 
 }
