@@ -11,45 +11,44 @@ import android.webkit.WebViewClient;
 /**
  * BelashiAndroid Created by logansaso on 8/12/16.
  */
-public class ControllerActivity extends AppCompatActivity{
+public class ControllerSelectionActivity extends AppCompatActivity {
 
     WebView mView ;
-    String mUrl ;
+    String mIPAddress;
 
-    Intent mControllerIntent ;
+    Intent controllerIntent ;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_controller); //Set the content view to the main activity
+        controllerIntent = getIntent();
+        setContentView(R.layout.activity_controller);
 
-        mControllerIntent = getIntent();
+        mIPAddress = controllerIntent.getStringExtra("ogIP");
 
         mView = (WebView) findViewById(R.id.controllerWebView);
         WebSettings viewSettings = mView.getSettings();
 
-        mUrl = mControllerIntent.getStringExtra("url");
 
         viewSettings.setJavaScriptEnabled(true);
 
         mView.setWebViewClient(new WebViewClient(){
 
-            //I know it is deprecated, but the other version doesn't trigger properly
+            //I know it is deprecated, but the other version doesnt trigger
             public boolean shouldOverrideUrlLoading(WebView view, String url){
 
-                Intent newUrlIntent = new Intent(ControllerActivity.this, ControllerActivity.class);
+                Intent newUrlIntent = new Intent(ControllerSelectionActivity.this, ControllerActivity.class);
                 newUrlIntent.putExtra("url", url);
-                startActivity(newUrlIntent); //Pass along the new url to the new intent
+                startActivity(newUrlIntent);
 
-                return true; //Should cancel URL loading, no?
+                return true; //Should cancel loading, no?
             }
 
         });
 
-        mView.loadUrl(mUrl);
-
+        mView.loadUrl("http://" + mIPAddress.substring(1) + ":9090/www/control/index.html");
 
     }
 }

@@ -72,7 +72,6 @@ public class OGObjectAdapter extends RecyclerView.Adapter<OGObjectAdapter.ViewHo
 
         public ImageView ogImageView;
         public TextView ogTextView;
-        public OGObject ogObject;
 
         public ViewHolder(View itemView){
 

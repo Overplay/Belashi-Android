@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Clicked");
                 OGObject ogBox = (OGObject) view.getTag();
 
-                Intent controllerIntent = new Intent(MainActivity.this, ControllerActivity.class);
+                Intent controllerIntent = new Intent(MainActivity.this, ControllerSelectionActivity.class);
                 controllerIntent.putExtra("ogIP", ogBox.getIPAddress().toString());
                 startActivity(controllerIntent);
 
@@ -193,8 +193,8 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     while (mListening) {
                         byte[] messageBytes =
-                                ("{'name': 'Logan\'s Iphone'," +
-                                        " 'location': 'Probably his hand'," +
+                                ("{'name': 'Android Testing'," +
+                                        " 'location': 'Probably near Logan'," +
                                         " 'mac': 'and cheese'," +
                                         " 'type': 'phone'}").getBytes();
                         DatagramPacket packet = new DatagramPacket(messageBytes,
