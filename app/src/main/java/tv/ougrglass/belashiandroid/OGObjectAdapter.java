@@ -2,6 +2,7 @@ package tv.ougrglass.belashiandroid;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,14 +20,27 @@ public class OGObjectAdapter extends RecyclerView.Adapter<OGObjectAdapter.ViewHo
 
     private Context mContext;
 
+    private View.OnClickListener mOnClickListener ;
+
+    public OGObjectAdapter(Context mContext
+            , List<OGObject> mOGObjects
+            , View.OnClickListener onClickListener){
+        this.mOGObjects = mOGObjects;
+        this.mContext = mContext;
+
+        this.mOnClickListener = onClickListener;
+    }
+
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
         View ogBoxView = inflater.inflate(R.layout.ogbox_layout, parent, false);
 
+        ogBoxView.setOnClickListener(mOnClickListener);
         return new ViewHolder(ogBoxView);
     }
 
@@ -38,7 +52,8 @@ public class OGObjectAdapter extends RecyclerView.Adapter<OGObjectAdapter.ViewHo
         TextView textView = holder.ogTextView;
         textView.setText(ogBox.getName());
 
-        ImageView imageView = holder.ogImageView;
+        holder.itemView.setTag(ogBox);
+
     }
 
     @Override
@@ -47,30 +62,30 @@ public class OGObjectAdapter extends RecyclerView.Adapter<OGObjectAdapter.ViewHo
     }
 
 
-    public OGObjectAdapter(Context mContext, List<OGObject> mOGObjects){
-        this.mOGObjects = mOGObjects;
-        this.mContext = mContext;
-    }
+
 
     private Context getContext() {
         return mContext;
     }
 
-
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView ogImageView;
         public TextView ogTextView;
+        public OGObject ogObject;
 
         public ViewHolder(View itemView){
 
             super(itemView);
 
-                ogImageView = (ImageView) itemView.findViewById(R.id.ogLogo);
-                ogTextView = (TextView) itemView.findViewById(R.id.ogName);
+            ogImageView = (ImageView) itemView.findViewById(R.id.ogLogo);
+            ogTextView = (TextView) itemView.findViewById(R.id.ogName);
+
 
         }
 
+
     }
+
+
 }

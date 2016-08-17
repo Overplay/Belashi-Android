@@ -1,5 +1,6 @@
 package tv.ougrglass.belashiandroid;
 
+import java.net.InetAddress;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -11,10 +12,10 @@ public class OGObject {
     private String macAddress;
     private String name;
     private String location;
-    private String ipAddress;
+    private InetAddress ipAddress;
     private long updateTime;
 
-    public OGObject(String name, String location, String mac, String ipAddress){
+    public OGObject(String name, String location, String mac, InetAddress ipAddress){
 
         this.macAddress = "00:00:00:00:00:00";
 
@@ -59,11 +60,11 @@ public class OGObject {
         this.location = location;
     }
 
-    public String getIpAddress() {
+    public InetAddress getIPAddress() {
         return ipAddress;
     }
 
-    public void setIpAddress(String ipAddress) {
+    public void setIPAddress(InetAddress ipAddress) {
         this.ipAddress = ipAddress;
     }
 
