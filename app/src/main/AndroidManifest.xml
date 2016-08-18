@@ -17,11 +17,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+<<<<<<< HEAD
+=======
+        <activity android:name=".ControllerSelectionActivity">
+            <intent-filter>
+                <category android:name="android.intent.category.APP_BROWSER"/>
+            </intent-filter>
+        </activity>
+>>>>>>> 7e7b271df751d1bf9a2a32302fb37b2cb9ebd085
         <activity android:name=".ControllerActivity">
             <intent-filter>
                 <category android:name="android.intent.category.APP_BROWSER"/>
             </intent-filter>
         </activity>
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 7e7b271df751d1bf9a2a32302fb37b2cb9ebd085
         <receiver android:name=".WIFIBroadcastReceiverListener">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
