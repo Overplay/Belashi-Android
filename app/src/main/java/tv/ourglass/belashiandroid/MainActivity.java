@@ -28,7 +28,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-//import tv.ougrglass.tv.ourglass.belashiandroid.OGObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -208,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     while (mListening) {
                         byte[] messageBytes =
-                                ("{'name': 'Logan\'s Iphone'," +
+                                ("{'name': 'Logans Iphone'," +
                                         " 'location': 'Probably his hand'," +
                                         " 'mac': 'and cheese'," +
                                         " 'type': 'phone'}").getBytes();
