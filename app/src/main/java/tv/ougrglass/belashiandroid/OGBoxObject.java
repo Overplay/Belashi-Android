@@ -6,7 +6,7 @@ import java.util.Calendar;
 /**
  * Created by logansaso on 7/19/16.
  */
-public class OGObject {
+public class OGBoxObject {
 
     private String macAddress;
     private String name;
@@ -14,7 +14,14 @@ public class OGObject {
     private InetAddress ipAddress;
     private long updateTime;
 
-    public OGObject(String name, String location, String mac, InetAddress ipAddress){
+    /**
+     * OGBoxObject Constructor
+     * @param name The name of the OGBoxObject
+     * @param location The location the OGBoxObject provides
+     * @param mac The MacAddress of the OGBoxObject
+     * @param ipAddress The IPAddress of the OGBoxObject
+     */
+    public OGBoxObject(String name, String location, String mac, InetAddress ipAddress){
 
         this.macAddress = "00:00:00:00:00:00";
 
