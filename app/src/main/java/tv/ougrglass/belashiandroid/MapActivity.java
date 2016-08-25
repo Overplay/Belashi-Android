@@ -158,36 +158,37 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
      */
     public void addMarkersToMap(String jsonString) throws JSONException {
 
-        JSONArray restarauntList = new JSONArray(jsonString);
+        JSONArray restarauntList = new JSONArray(jsonString); //get the json array
 
-        for (int i = 0; i < restarauntList.length(); i++) {
+        for (int i = 0; i < restarauntList.length(); i++) { //iterate through the array
 
             try {
 
-                String name = new JSONObject(restarauntList.get(i).toString()).getString("name");
+                String name = //get the name
+                        new JSONObject(restarauntList.get(i).toString()).getString("name");
 
-                LatLng latlng = null;
+                LatLng latlng ; //get ready for latlng to be found
 
                 try {
 
                     JSONObject geolocation = new JSONObject(new JSONObject(restarauntList.get(i).toString())
-                            .getString("geolocation"));
+                            .getString("geolocation")); //see if it has a latitude in the database
 
-                    String latitude = geolocation.getString("latitude");
-                    String longitude = geolocation.getString("longitude");
-                    latlng = new LatLng(Double.valueOf(latitude), Double.valueOf(longitude));
+                    String latitude = geolocation.getString("latitude"); //get latitude
+                    String longitude = geolocation.getString("longitude"); //get longitude
+                    latlng = new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)); //make a latlng object
 
                 } catch (Exception e) {
 
                     JSONObject jsonAddress = new JSONObject(new JSONObject(restarauntList.get(i).toString())
-                            .getString("address"));
+                            .getString("address")); //If it doesn't get the address
 
-                    String address =
+                    String address = //get the street, city, and state
                             jsonAddress.getString("street") + " " +
                                     jsonAddress.getString("city") + " " +
                                     jsonAddress.getString("state");
 
-                    latlng = getLocationFromAddress(address);
+                    latlng = getLocationFromAddress(address); //get the location from the address (if we can)
 
 //                    if (latlng == null)
 //                        return;
@@ -196,18 +197,18 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
                 }
 
-                Log.d(TAG, "------------------------");
+                Log.d(TAG, "------------------------"); //Logging. I was having issues. Still helpful at times.
                 Log.d(TAG, name);
                 Log.d(TAG, latlng.toString());
                 Log.d(TAG, "------------------------");
 
-                RestaurantObject restaurantObject = new RestaurantObject(name, latlng);
+                RestaurantObject restaurantObject = new RestaurantObject(name, latlng); //Make a new restaraunt object
 
-                mMap.addMarker(
+                mMap.addMarker( //Add the marker to the map
                         new MarkerOptions().position(restaurantObject.getCoords())
                                 .title(restaurantObject.getName()));
 
-                mRestaurantList.add(restaurantObject);
+                mRestaurantList.add(restaurantObject); //add the object to the list of restaurants
 
 //                LatLng latlng = new LatLng(
 //                        new JSONObject(new JSONObject(restarauntList.get(i))
@@ -225,30 +226,36 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
     }
 
+
+    /**
+     * Get the location (LatLng) of an restaurant from the address of the place in Asahi if we can
+     * @param streetAddress Pass the string of the street address
+     * @return Return the LatLng of the restaurant from the string passed
+     */
     public LatLng getLocationFromAddress(String streetAddress) {
 
-        Geocoder coder = new Geocoder(this);
-        List<Address> address;
-        LatLng returnMe = null;
+        Geocoder coder = new Geocoder(this); //Get a geocoder with our context
+        List<Address> address; //Prepare for an address from list
+        LatLng returnMe = null; //Get a LatLng to return
 
         try {
-            address = coder.getFromLocationName(streetAddress, 20);
-            if (address.size() == 0) {
-                return null;
+            address = coder.getFromLocationName(streetAddress, 20); //Get the street location
+            if (address.size() == 0) { //If it doesn't exist, return returnMe
+                return returnMe;
             }
 
-            Address location = address.get(0);
+            Address location = address.get(0); //If it does, get the address
 
-            Log.d(TAG, location.toString());
-            Log.d(TAG, String.valueOf(location.getLatitude()));
-            Log.d(TAG, String.valueOf(location.getLongitude()));
+//            Log.d(TAG, location.toString());
+//            Log.d(TAG, String.valueOf(location.getLatitude()));
+//            Log.d(TAG, String.valueOf(location.getLongitude()));
 
-            returnMe = new LatLng(location.getLatitude(), location.getLongitude());
+            returnMe = new LatLng(location.getLatitude(), location.getLongitude()); //get the latitude longitude
         } catch (Exception e) {
             e.printStackTrace();
         }
 //        Log.d(TAG + "Address", returnMe.toString());
-        return returnMe;
+        return returnMe; //return the LatLng
     }
 
 

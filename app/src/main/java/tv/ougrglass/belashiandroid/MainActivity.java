@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     Thread mUDPBroadcastThread;
     DatagramSocket mSocket;
     private OGObjectAdapter adapter;
-    private ArrayList<OGObject> mOGList = new ArrayList<OGObject>();
+    private ArrayList<OGBoxObject> mOGList = new ArrayList<OGBoxObject>();
     private boolean mListening = false;
 
     private DrawerLayout mDrawerLayout;
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                OGObject ogBox = (OGObject) view.getTag(); //get ogbox from the view
+                OGBoxObject ogBox = (OGBoxObject) view.getTag(); //get ogbox from the view
 
                 Intent controllerIntent = new Intent(MainActivity.this, WebActivity.class); //create webview controller intent
                 controllerIntent.putExtra("url", "http://" +
@@ -149,22 +149,22 @@ public class MainActivity extends AppCompatActivity {
      * @param number the number of ogboxes to simulate
      * @return a list of of og boxes for simulation
      */
-    public List<OGObject> simulateOGBoxes(int number) {
+    public List<OGBoxObject> simulateOGBoxes(int number) {
 
-        List<OGObject> returnList = new ArrayList<>(); //make a list
+        List<OGBoxObject> returnList = new ArrayList<>(); //make a list
 
         for (int i = 0; i < number; i++) { //loop
 
-            OGObject obj = null;
+            OGBoxObject obj = null;
             try {
-                obj = new OGObject("OGName" + Integer.toString(i),
+                obj = new OGBoxObject("OGName" + Integer.toString(i),
                         "OGLocation" + Integer.toString(i)
                         , i + ":" + i + ":" + i + ":" + i
                         , InetAddress.getByName("192.168.1." + i)); //get a numerical ip
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
-            //Make an OGObject for every iteration in the loop
+            //Make an OGBoxObject for every iteration in the loop
 
             returnList.add(obj); //Add it to the list
 
@@ -377,13 +377,13 @@ public class MainActivity extends AppCompatActivity {
                 //At this point in time there is no 'type' section in the OGBox's response data
             }
 
-            OGObject ogObject = new OGObject(
+            OGBoxObject ogBoxObject = new OGBoxObject(
                     jsonObject.getString("name"),
                     jsonObject.getString("location"),
                     jsonObject.getString("mac"),
                     receivedPacket.getAddress()); //Decode the name, location, and mac address
 
-            addObjectToOGList(ogObject); //add the OGObject to our list of objects
+            addObjectToOGList(ogBoxObject); //add the OGBoxObject to our list of objects
 
         } catch (JSONException | UnsupportedEncodingException e) {
             //JSON Exception occured
@@ -395,13 +395,13 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Add an ogobject to the list of the ogobjects
-     * @param ogObject send an OGObject to add to the list
+     * @param ogBoxObject send an OGBoxObject to add to the list
      */
-    private void addObjectToOGList(OGObject ogObject) {
+    private void addObjectToOGList(OGBoxObject ogBoxObject) {
 
         boolean inList = false; //This is for duplicate checking
-        for (OGObject obj : mOGList) {
-            if (obj.getName().equalsIgnoreCase(ogObject.getName())) { //If the name already exists in the list
+        for (OGBoxObject obj : mOGList) {
+            if (obj.getName().equalsIgnoreCase(ogBoxObject.getName())) { //If the name already exists in the list
                 inList = true; //they are in a list
                 obj.setUpdateTime(Calendar.getInstance().getTime().getTime()); //set the update time (not useful anymore)
                 break; //We don't need to keep checking if it was found
@@ -409,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (!inList) { //if it isn't in the list
-            mOGList.add(ogObject); //add it to the list
+            mOGList.add(ogBoxObject); //add it to the list
             updateAdapter(); //update
         }
 
@@ -423,7 +423,7 @@ public class MainActivity extends AppCompatActivity {
 
         long now = Calendar.getInstance().getTime().getTime();
 
-        for (OGObject obj : mOGList) {
+        for (OGBoxObject obj : mOGList) {
 
             if (now - obj.getUpdateTime() >= (30 * 1000)) {
 

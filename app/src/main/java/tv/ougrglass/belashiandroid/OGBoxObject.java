@@ -23,10 +23,10 @@ public class OGBoxObject {
      */
     public OGBoxObject(String name, String location, String mac, InetAddress ipAddress){
 
-        this.macAddress = "00:00:00:00:00:00";
-
         if(mac != null){
-            this.macAddress = mac;
+            this.macAddress = mac; //If not null set mac address
+        } else {
+            this.macAddress = "00:00:00:00:00:00";
         }
 
         this.name = name;

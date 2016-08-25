@@ -15,53 +15,53 @@ import java.util.List;
  */
 public class OGObjectAdapter extends RecyclerView.Adapter<OGObjectAdapter.ViewHolder> {
 
-    private List<OGObject> mOGObjects;
+    private List<OGBoxObject> mOGBoxObjects; //Make a list of OGBoxObjects
 
-    private Context mContext;
+    private Context mContext; //Get our context
 
-    private View.OnClickListener mOnClickListener ;
+    private View.OnClickListener mOnClickListener ; //Get our onclicklistener
 
-    public OGObjectAdapter(Context mContext
-            , List<OGObject> mOGObjects
-            , View.OnClickListener onClickListener){
-        this.mOGObjects = mOGObjects;
-        this.mContext = mContext;
+    /**
+     * Make a new OGObjectAdapter
+     * @param context The context of the adapter
+     * @param ogBoxObjects The list of OGBoxObjects we need to adapt to
+     * @param onClickListener The onclick listener we want it to run
+     */
+    public OGObjectAdapter(Context context, List<OGBoxObject> ogBoxObjects, View.OnClickListener onClickListener){
 
+        this.mOGBoxObjects = ogBoxObjects;
+        this.mContext = context;
         this.mOnClickListener = onClickListener;
     }
-
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        Context context = parent.getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
+        Context context = parent.getContext(); //use our parent context
+        LayoutInflater inflater = LayoutInflater.from(context); //get the inflater from context
 
-        View ogBoxView = inflater.inflate(R.layout.ogbox_layout, parent, false);
+        View ogBoxView = inflater.inflate(R.layout.ogbox_layout, parent, false); //Use the inflater and inflate
 
-        ogBoxView.setOnClickListener(mOnClickListener);
-        return new ViewHolder(ogBoxView);
+        ogBoxView.setOnClickListener(mOnClickListener); //set the onclick to the one we made
+        return new ViewHolder(ogBoxView); //return the viewholder
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        OGObject ogBox = mOGObjects.get(position);
+        OGBoxObject ogBox = mOGBoxObjects.get(position); //Get the position in the recycler view that corrisponds to the ogbox
 
-        TextView textView = holder.ogTextView;
-        textView.setText(ogBox.getName());
+        TextView textView = holder.ogTextView; //get the textview
+        textView.setText(ogBox.getName()); //set text to the ogbox name
 
-        holder.itemView.setTag(ogBox);
+        holder.itemView.setTag(ogBox); //set the itemview tag to the box
 
     }
 
     @Override
     public int getItemCount() {
-        return mOGObjects.size();
+        return mOGBoxObjects.size(); //get the size of the ogbox list
     }
-
-
-
 
     private Context getContext() {
         return mContext;
@@ -71,14 +71,14 @@ public class OGObjectAdapter extends RecyclerView.Adapter<OGObjectAdapter.ViewHo
 
         public ImageView ogImageView;
         public TextView ogTextView;
-        public OGObject ogObject;
+        public OGBoxObject ogBoxObject;
 
         public ViewHolder(View itemView){
 
             super(itemView);
 
-            ogImageView = (ImageView) itemView.findViewById(R.id.ogLogo);
-            ogTextView = (TextView) itemView.findViewById(R.id.ogName);
+            ogImageView = (ImageView) itemView.findViewById(R.id.ogLogo); //set the itemView image
+            ogTextView = (TextView) itemView.findViewById(R.id.ogName); //set the itemView text
 
 
         }
