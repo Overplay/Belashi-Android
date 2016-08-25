@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -47,9 +48,6 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
 
-    public TextView getTextView() {
-        return mWiFiTextView;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) { //Create the view
@@ -67,9 +65,22 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
+        ImageView mHamburgerImage = (ImageView) findViewById(R.id.hamburger_menu_view);
+
+        mHamburgerImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
+            }
+        });
+
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,
                 R.layout.drawer_list_item, getString(R.string.menu_option_left).split(";")));
+
+
+
         createSidebarListener();
+
 
     }
 
@@ -205,6 +216,8 @@ public class MainActivity extends AppCompatActivity {
             mSocket.setBroadcast(true);
         } catch (SocketException e) {
             e.printStackTrace(); //Print an error
+        } catch (NullPointerException e){
+            //This means that the socket was already a thing.
         }
 
         createUDPThread(); //Create the udp thread

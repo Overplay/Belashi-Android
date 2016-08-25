@@ -18,26 +18,6 @@
             android:background="@color/colorPrimaryDark"
             android:id="@+id/outerFrameLayoutHome">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="@android:dimen/thumbnail_height"
-                android:id="@+id/innerFrameLayoutHome">
-
-                <ImageView
-                    android:layout_width="212dp"
-                    android:layout_height="79dp"
-                    android:id="@+id/imageView"
-                    android:src="@drawable/ourglass_logo"
-                    android:adjustViewBounds="true"
-                    android:contentDescription="@string/ourglass_logo"
-                    android:scaleType="fitCenter"
-                    android:layout_alignParentTop="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_weight=".7"/>
-
-            </LinearLayout>
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -49,6 +29,34 @@
                 android:textColor="#ffffff"
                 android:visibility="visible"
                 android:enabled="true"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="@android:dimen/thumbnail_height"
+                android:id="@+id/innerFrameLayoutHome"
+                android:layout_gravity="center_horizontal|top">
+
+                <ImageView
+                    android:layout_width="212dp"
+                    android:layout_height="79dp"
+                    android:id="@+id/ourglassLogoView"
+                    android:src="@drawable/ourglass_logo"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/ourglass_logo"
+                    android:scaleType="fitCenter"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentEnd="true"
+                    android:foregroundGravity="center_horizontal"/>
+
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="37dp"
+                android:layout_height="37dp"
+                android:id="@+id/hamburger_menu_view"
+                android:layout_gravity="left|top"
+                android:src="@drawable/ic_view_headline_white_48dp"/>
 
         </FrameLayout>
 

@@ -192,7 +192,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
                 HttpURLConnection c = null;
                 try {
-                    URL u = new URL("http://104.131.145.36/api/v1/venue");
+                    URL u = new URL("http://104.131.145.36/venue/getMobileView");
                     c = (HttpURLConnection) u.openConnection();
                     c.connect();
 
