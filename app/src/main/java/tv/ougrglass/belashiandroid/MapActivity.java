@@ -1,13 +1,10 @@
 package tv.ougrglass.belashiandroid;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,7 +28,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * BelashiAndroid Created by logansaso on 8/18/16.
@@ -41,43 +37,49 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private String TAG = "MapActivityDebug";
 
     private GoogleMap mMap;
-    private LocationManager mLocationManager;
-    private Criteria mLocationCriteria;
-    private Location mMyLocation;
     private String mJsonString;
-    private ArrayList mRestarauntList = new ArrayList<RestarauntObject>();
+    private ArrayList mRestaurantList = new ArrayList<RestaurantObject>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map_fragment);
-        mapFragment.getMapAsync(this);
+                .findFragmentById(R.id.map_fragment); //Get the map fragment
+        mapFragment.getMapAsync(this); //get the map async
     }
 
     @SuppressWarnings("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        mMap = googleMap;
-        mLocationManager = (LocationManager) getSystemService(MapActivity.LOCATION_SERVICE);
-        mLocationCriteria = new Criteria();
+        mMap = googleMap; //get the map to the googlemap
+        LocationManager locationManager =
+                (LocationManager) getSystemService(MapActivity.LOCATION_SERVICE); //get a location manager
+        Criteria locationCriteria = new Criteria(); //get location criteria
 
-        mMap.setMyLocationEnabled(true);
+        mMap.setMyLocationEnabled(true); //set show my location enabled to true
 
-        Location location = mLocationManager.getLastKnownLocation(
-                mLocationManager.getBestProvider(mLocationCriteria, false));
+        Location location = locationManager.getLastKnownLocation(
+                locationManager.getBestProvider(locationCriteria, false)); //get my location object
 
-        LatLng mMyLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        LatLng myLocation =
+                new LatLng(location.getLatitude(), location.getLongitude()); //get my LatLong
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mMyLocation, 15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15)); //move camera to me
 
-        placeSurroundingOurglassMarkers(mMyLocation);
+        placeSurroundingOurglassMarkers(myLocation); //place the surrounding markers for ourglass locations
 
     }
 
+    /**
+     * Place surrounding markers for ourglass enabled locations
+     * @param userLocation Pass the user location
+     */
     public void placeSurroundingOurglassMarkers(LatLng userLocation) {
+
+        //This is written this way because in the future there can be a radius parameter to only load near ones
+
 
         /*PSEUDO CODE BEGIN
         * Get the lattitude/long of the current phone.
@@ -85,10 +87,75 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         * Get a list of boxes and make sure none of them have duplicate data.
         * Add all of the locations to the map*/
 
-        getJSON();
+        getJSON(); //Do all the work
 
     }
 
+    /**
+     * Download the json of objects from our server
+     */
+    public void getJSON() {
+
+        Thread getJsonThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                HttpURLConnection c = null;
+                try {
+                    URL u = new URL("http://104.131.145.36/venue/getMobileView"); //make url object
+                    c = (HttpURLConnection) u.openConnection(); //open the httpurlconnection
+                    c.connect(); //connect the HttpURLConnection
+
+                    int status = c.getResponseCode(); //get the status code
+                    switch (status) { //switch based on response code
+                        case 200:
+                            BufferedReader br =
+                                    new BufferedReader(new InputStreamReader(c.getInputStream()));
+                            StringBuilder sb = new StringBuilder(); //Make a StringBuilder
+                            String line; //make the line
+                            while ((line = br.readLine()) != null) { //as long as the line is not null
+                                sb.append(line); //add it to the end
+                                sb.append("\n"); //new line
+                            }
+                            br.close(); //close the bufferedreader
+                            mJsonString = sb.toString(); //jsonString is the stringbuilder result
+
+                            MapActivity.this.runOnUiThread(new Runnable() { //run on the ui thread
+                                @Override
+                                public void run() {
+                                    try {
+                                        addMarkersToMap(mJsonString); //add the markers to the map
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (c != null) {
+                        try {
+                            c.disconnect();
+                        } catch (Exception e) {
+                            //Disconnect
+                        }
+                    }
+                }
+            }
+
+        });
+
+        getJsonThread.start(); //start the thread
+
+    }
+
+    /**
+     * Decode the json into LatLng and add the markers to our map
+     * @param jsonString Pass the json of objects we downloaded in getJSON
+     * @throws JSONException
+     */
     public void addMarkersToMap(String jsonString) throws JSONException {
 
         JSONArray restarauntList = new JSONArray(jsonString);
@@ -134,13 +201,13 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 Log.d(TAG, latlng.toString());
                 Log.d(TAG, "------------------------");
 
-                RestarauntObject restarauntObject = new RestarauntObject(name, latlng);
+                RestaurantObject restaurantObject = new RestaurantObject(name, latlng);
 
                 mMap.addMarker(
-                        new MarkerOptions().position(restarauntObject.getCoords())
-                                .title(restarauntObject.getName()));
+                        new MarkerOptions().position(restaurantObject.getCoords())
+                                .title(restaurantObject.getName()));
 
-                mRestarauntList.add(restarauntObject);
+                mRestaurantList.add(restaurantObject);
 
 //                LatLng latlng = new LatLng(
 //                        new JSONObject(new JSONObject(restarauntList.get(i))
@@ -184,61 +251,5 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         return returnMe;
     }
 
-    public void getJSON() {
-
-        Thread getJsonThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                HttpURLConnection c = null;
-                try {
-                    URL u = new URL("http://104.131.145.36/venue/getMobileView");
-                    c = (HttpURLConnection) u.openConnection();
-                    c.connect();
-
-                    int status = c.getResponseCode();
-                    switch (status) {
-                        case 200:
-                        case 201:
-                            BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
-                            StringBuilder sb = new StringBuilder();
-                            String line;
-                            while ((line = br.readLine()) != null) {
-                                sb.append(line);
-                                sb.append("\n");
-                            }
-                            br.close();
-                            mJsonString = sb.toString();
-
-                            MapActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        addMarkersToMap(mJsonString);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (c != null) {
-                        try {
-                            c.disconnect();
-                        } catch (Exception e) {
-                            //Disconnect
-                        }
-                    }
-                }
-            }
-
-        });
-
-        getJsonThread.start();
-
-    }
 
 }

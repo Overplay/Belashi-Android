@@ -15,7 +15,7 @@ public class WIFIBroadcastReceiverListener extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-       new MainActivity().setWifiText();
+       new MainActivity().setWifiText(); //call the setWifiText when there is a change in the wifi change
 
     }
 
