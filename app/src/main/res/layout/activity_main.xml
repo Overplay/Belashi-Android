@@ -1,68 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:mContext="tv.ourglass.belashiandroid.MainActivity"
-    android:background="@color/colorPrimary">
+    android:layout_height="match_parent">
 
-    <FrameLayout
+    <RelativeLayout
+        tools:mContext="tv.ougrglass.belashiandroid.MainActivity"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryDark"
-        android:id="@+id/outerFrameLayoutHome">
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="@android:dimen/thumbnail_height"
-            android:id="@+id/innerFrameLayoutHome">
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimaryDark"
+            android:id="@+id/outerFrameLayoutHome">
 
-            <Button
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@android:dimen/thumbnail_height"
+                android:id="@+id/innerFrameLayoutHome">
+
+                <ImageView
+                    android:layout_width="212dp"
+                    android:layout_height="79dp"
+                    android:id="@+id/imageView"
+                    android:src="@drawable/ourglass_logo"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/ourglass_logo"
+                    android:scaleType="fitCenter"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_weight=".7"/>
+
+            </LinearLayout>
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Button"
-                android:id="@+id/testMapButton"
-                android:layout_weight=".7"
-                android:nestedScrollingEnabled="false"
-                />
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/wireless_not_found"
+                android:id="@+id/wifiView"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:textColor="#ffffff"
+                android:visibility="visible"
+                android:enabled="true"/>
 
-            <ImageView
-                android:layout_width="212dp"
-                android:layout_height="79dp"
-                android:id="@+id/imageView"
-                android:src="@drawable/ourglass_logo"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/ourglass_logo"
-                android:scaleType="fitCenter"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentEnd="true"
-                android:layout_weight=".7"/>
+        </FrameLayout>
 
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/wireless_not_found"
-            android:id="@+id/wifiView"
-            android:layout_gravity="center"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:visibility="visible"
-            android:enabled="true"
-            />
+            android:layout_below="@+id/outerFrameLayoutHome"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/ogBoxView">
+        </android.support.v7.widget.RecyclerView>
 
-    </FrameLayout>
+    </RelativeLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/outerFrameLayoutHome"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:id="@+id/ogBoxView">
-    </android.support.v7.widget.RecyclerView>
+    <ListView android:id="@+id/left_drawer"
+              android:layout_width="240dp"
+              android:layout_height="match_parent"
+              android:layout_gravity="start"
+              android:choiceMode="singleChoice"
+              android:divider="@android:color/transparent"
+              android:dividerHeight="0dp"
+              android:background="#111"/>
 
-</RelativeLayout>
+</android.support.v4.widget.DrawerLayout>

@@ -4,6 +4,7 @@
     <string name="wifi_prefix">Wi-Fi Network: </string>
     <string name="wireless_not_found">Wireless Not Found</string>
     <string name="json_api_call">http://104.131.145.36/api/v1/venue</string>
+    <string name="menu_option_left">MAP;ACCOUNT</string>
 
     <string name="og_logo_description">OGBox Logo to be Clicked On</string>
     <string name="lorem_ipsum_dolor_bacon_ham_sandwhich">Lorem Ipsum Dolor Bacon Ham Sandwhich</string>

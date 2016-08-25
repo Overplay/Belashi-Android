@@ -3,5 +3,5 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           class="com.google.android.gms.maps.SupportMapFragment"
-          android:name="tv.ourglass.belashiandroid.MapActivity"
+          android:name="tv.ougrglass.belashiandroid.MapActivity"
           android:id="@+id/map_fragment"/>
